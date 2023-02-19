@@ -2,20 +2,24 @@ import express from "express";
 import WebSocket from "ws";
 import url from "url";
 import roomRouter from "./routes/api/room";
+import http from "http";
 
 const app: express.Express = express();
 app.use(express.json());
-const wss = new WebSocket.Server({ port: 8001 });
+const httpServer = http.createServer(app);
+const wss = new WebSocket.Server({ server: httpServer }); // {server:httpServer}によってexpressと同じポートを使用できる
 
 wss.on("connection", (ws, req) => {
-  // const {
-  //   query: { uid },
-  // } = url.parse(req.url, true);
-  // wss.uid = uid;
+  const url_parse = url.parse(req.url!, true);
+  // console.log(ws);
 
   ws.on("message", (message) => {
     console.log("received: %s", message);
+
+    // wssが接続中のすべてのwsを参照
     for (const client of wss.clients) {
+      console.log(client);
+
       if (client.readyState === WebSocket.OPEN) {
         client.send(message, { binary: false });
       }
@@ -34,6 +38,9 @@ app.get("/", (req: express.Request, res: express.Response) => {
 
 app.use("/api/room", roomRouter);
 
-app.listen(8000, () => {
+// app.listen(8000, () => {
+//   console.log("ポート8000番で起動しました。");
+// });
+httpServer.listen(8000, () => {
   console.log("ポート8000番で起動しました。");
 });
