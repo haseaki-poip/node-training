@@ -1,19 +1,29 @@
 import express from "express";
 import WebSocket from "ws";
+import url from "url";
 import roomRouter from "./routes/api/room";
 
 const app: express.Express = express();
 app.use(express.json());
 const wss = new WebSocket.Server({ port: 8001 });
 
-wss.on("connection", function connection(ws) {
-  ws.on("message", function incoming(message) {
+wss.on("connection", (ws, req) => {
+  // const {
+  //   query: { uid },
+  // } = url.parse(req.url, true);
+  // wss.uid = uid;
+
+  ws.on("message", (message) => {
     console.log("received: %s", message);
-    ws.send("send message");
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message, { binary: false });
+      }
+    }
   });
   ws.send("connecting");
 
-  ws.on("close", function () {
+  ws.on("close", () => {
     console.log("ブラウザを閉じました");
   });
 });
