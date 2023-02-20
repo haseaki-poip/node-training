@@ -7,7 +7,17 @@ import http from "http";
 const app: express.Express = express();
 app.use(express.json());
 const httpServer = http.createServer(app);
-const wss = new WebSocket.Server({ server: httpServer }); // {server:httpServer}によってexpressと同じポートを使用できる
+export const wss = new WebSocket.Server({ server: httpServer }); // {server:httpServer}によってexpressと同じポートを使用できる
+
+type Users = {
+  userName: string;
+  ws: WebSocket;
+};
+type Clients = {
+  [roomId: string]: Users[];
+};
+
+const CLIENTS: Clients = {};
 
 wss.on("connection", (ws, req) => {
   const url_parse = url.parse(req.url!, true);
@@ -33,14 +43,16 @@ wss.on("connection", (ws, req) => {
 });
 
 app.get("/", (req: express.Request, res: express.Response) => {
+  for (const client of wss.clients) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send("get", { binary: false });
+    }
+  }
   res.send("Hello World!");
 });
 
 app.use("/api/room", roomRouter);
 
-// app.listen(8000, () => {
-//   console.log("ポート8000番で起動しました。");
-// });
 httpServer.listen(8000, () => {
   console.log("ポート8000番で起動しました。");
 });
