@@ -7,7 +7,7 @@ import http from "http";
 const app: express.Express = express();
 app.use(express.json());
 const httpServer = http.createServer(app);
-const wss = new WebSocket.Server({ server: httpServer }); // {server:httpServer}によってexpressと同じポートを使用できる
+export const wss = new WebSocket.Server({ server: httpServer }); // {server:httpServer}によってexpressと同じポートを使用できる
 
 type Users = {
   userName: string;
