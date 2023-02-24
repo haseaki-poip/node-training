@@ -8,7 +8,6 @@ const router = express.Router();
 router.post("/create", (req: Request, res: Response) => {
   try {
     const roomId = crypto.randomUUID();
-    console.log(roomId);
     const userName: string = req.body.userName;
 
     CLIENTS[roomId] = [
@@ -17,7 +16,6 @@ router.post("/create", (req: Request, res: Response) => {
       },
     ];
 
-    console.log(CLIENTS);
     const response = {
       roomId: roomId,
     };

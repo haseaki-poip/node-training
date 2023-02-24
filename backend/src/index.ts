@@ -36,7 +36,10 @@ wss.on("connection", (ws, req) => {
       }
     }
   });
+
   ws.send(JSON.stringify({ isConnect: true }));
+
+  // ws.send("ok");
 
   ws.on("close", () => {
     console.log("ブラウザを閉じました");
