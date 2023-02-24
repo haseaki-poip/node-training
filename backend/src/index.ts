@@ -11,17 +11,18 @@ export const wss = new WebSocket.Server({ server: httpServer }); // {server:http
 
 type Users = {
   userName: string;
-  ws: WebSocket;
+  ws?: WebSocket;
 };
 type Clients = {
   [roomId: string]: Users[];
 };
 
-const CLIENTS: Clients = {};
+export const CLIENTS: Clients = {};
 
 wss.on("connection", (ws, req) => {
   const url_parse = url.parse(req.url!, true);
-  // console.log(ws);
+
+  console.log(CLIENTS);
 
   ws.on("message", (message) => {
     console.log("received: %s", message);
@@ -35,7 +36,10 @@ wss.on("connection", (ws, req) => {
       }
     }
   });
-  ws.send("connecting");
+
+  ws.send(JSON.stringify({ isConnect: true }));
+
+  // ws.send("ok");
 
   ws.on("close", () => {
     console.log("ブラウザを閉じました");
